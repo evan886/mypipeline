@@ -1,0 +1,32 @@
+//@Library("devops06@main") _  // 不能用 ""
+@Library('devops6@main')_
+
+//def mygit = new org.devops.Gitlab()
+//def mydeploy = new org.devops.Deploy()
+
+
+
+
+// pipeline  {
+//     agent any
+//     options  {
+//         skipDefaultCheckout true
+//     }
+//     stages  {
+//         stage () {
+//             steps {
+//                 script  {
+//                     println("GetArtifact")
+//                 }
+//             }
+
+//         }
+//         stage () {
+//             steps {
+//                 script {
+//                     println("Deploy")
+//                 }
+//             }
+//          }
+//     }
+// }

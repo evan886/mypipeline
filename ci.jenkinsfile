@@ -1,0 +1,123 @@
+@Library('devops6@main')_
+//@Library('devops6@main')_
+
+
+def build = new org.devops.Build ()
+// /def sonar = new org.devops.Sonar ()
+
+// def artifact = new org.devops.Artifact()
+// def checkout = new org.devops.Checkout()
+
+env.branchName = "${env.brachName}" - "origin/"
+println(env.branchName)
+
+// pipeline { 
+//     agent any
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 println("Checkout")
+//             }
+//         }
+//     }
+
+// }
+
+// Sonar.grooy  def sonar = new org.devops.Sonar ()  名少了个groovy 
+
+// checkout the code
+pipeline {
+    agent any
+    options  {
+        skipDefaultCheckout()
+    }
+    stages  {
+        stage("CheckOut") {
+            steps  {
+                script  {
+                    println("CheckOut")
+                    build.CheckOut()
+                }
+            }
+        }
+        stage("Build") {
+            steps  {
+                script  {
+                    println("Build")
+                    build.Build()
+                }
+            }
+        }
+        stage("CodeScan0") {
+            steps   {
+                script   {
+                    println("CodeScan")
+                    //Sonar36()
+                    //sonar.SonarScannerByPlugin()
+                }
+            }
+        }
+
+// 使用这个是可以的 就是func化的时候不行 先不理 
+        stage('CodeScan'){
+            steps{
+               
+                script{
+                    println "CodeScan"
+                    //env.projectName = "${JOB_NAME}".split('/')[-1].split('_')[0]   // demo3/demo3-maven-service_CI
+                    withCredentials([usernamePassword(credentialsId: '2523cbac-a621-4815-b7f8-e68e03e14cba',
+                                 passwordVariable: 'PASSWORD',
+                                 usernameVariable: 'USERNAME' )]) {
+                    withSonarQubeEnv{"SonarQube"}                
+                       sh "/home/evan/data/apps/sonar-scanner/bin/sonar-scanner  \
+                           -Dsonar.login=admin \
+                           -Dsonar.password=evan2240881 "
+                    }
+                    
+                }
+            }
+        }
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+        stage("PushArtifact") {
+            steps  {
+                script  {
+                println("PushArtifact from  evan's pipeline")
+                appName  = "${JOB_NAME}".split('/')[-1].split('_')[0]   // devops6-maven-service
+                repoName = appName.split('-')[0] // devops6
+
+                commitID = checkout.GetCommitID()
+                prinln(commitID)
+                appVersion = "env.branchName".split("-")[-1]
+                appVersion = "${appVersion}-${commitID}"
+                targetDir = "${appName}/${appversion}"
+
+                POM = readMavenPom file: 'pom.xml'
+                env.artifactId = ${POM.artifactId}
+                env.packaging = ${POM.packaging}
+                env.groupId = ${POM.groupId}
+                env.art_version = ${POM.version}
+                sourcePkgName = "${env.artifactID}-${env.art_version}.${env.packaging}"
+                pkgPath = "target"
+                targetPkgName = "${appName}-${appVersion}.${env.packaging}"
+                artifact.PushNexusArtifact(repoName, targetDir,pkgPath, sourcePkgName, targetPkgName)
+                //sonar.SonarScannerByPlugin()
+            }
+        }
+    }
+
+    }
+
+}  

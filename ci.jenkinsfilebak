@@ -1,0 +1,48 @@
+@Library('devops6@main')_
+//@Library('devops6@main')_
+
+
+def build = new org.devops.Build()
+def sonar = new org.devops.Sonar()
+def artifact = new org.devops.Artifact()
+def checkout = new org.devops.Checkout()
+
+env.branchName = "${env.brachName}" - "origin/"
+println(env.branchName)
+
+// checkout the code
+pipeline {
+    agent any
+    options  {
+        skipDefaultCheckout()
+    }
+    stages  {
+        stage("CheckOut") {
+            steps  {
+                script  {
+                    println("CheckOut")
+                    build.CheckOut()
+                }
+            }
+        }
+        stage("Build") {
+            steps  {
+                script  {
+                    println("Build")
+                }
+            }
+        }
+        stage("CodeScan") {
+            steps   {
+                script   {
+                    println("CodeScan")
+                }
+            }
+        }
+        stage("PushArtifact") {
+            steps  {
+                println("PushArtifact")
+            }
+        }
+    }
+}

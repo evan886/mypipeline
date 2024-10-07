@@ -1,0 +1,10 @@
+FROM  openjdk:19-jdk-alpine3.15
+#docker pull openjdk:19-jdk-alpine3.15
+ARG pkgname
+ENV pkgname=${pkgname}
+
+COPY  ${pkgname} /app.jar 
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app.jar","--server.port=8080"]
